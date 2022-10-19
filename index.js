@@ -3,6 +3,7 @@ const cors = require('cors');
 const { config } = require('dotenv');
 const app = express();
 const { conn } = require('./db');
+const {LoadDb} = require('./LoadDB/LoadDb')
 
 config();
 
@@ -14,7 +15,7 @@ app.use('/api', require('./routes'));
 
 conn.sync({ force:true }).then(() => {
   app.listen(3001, () => {
-//    LoadDb();
+   LoadDb();
     console.log('✓ Se conectó a la base de datos');
   })
 });

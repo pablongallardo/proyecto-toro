@@ -3,6 +3,7 @@ const { Sequelize } = require('sequelize');
 const fs = require('fs');
 const path = require('path');
 
+
 const {
   DB_USER, DB_PASSWORD, DB_HOST, DB_NAME
 } = process.env;
@@ -59,7 +60,7 @@ sequelize.models = Object.fromEntries(capsEntries);
 
 // En sequelize.models están todos los modelos importados como propiedades
 // Para relacionarlos hacemos un destructuring
-// const { Product, User, Order, Review,Factura} = sequelize.models;
+const { Product, User} = sequelize.models;
 
 // Aca vendrian las relaciones
 // Product.hasMany(Reviews);
