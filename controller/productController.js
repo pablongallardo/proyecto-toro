@@ -1,108 +1,122 @@
-const { Product, Review} = require('../db');
-const {Router} = require('express');
+const { Product, Review } = require('../db.js');
+const { Router } = require('express');
 const sequelize = require('../db');
-const AppError = require('../utils/appError');
-const catchAsync = require('../utils/catchAsync');
+const AppError =require ('../utils/appError.js');
+const CatchAsyns=require('../utils/catchAsync.js');
 
-const getProducts = async (req, res, next) => {
+
+// const Product= async(user) => {
+//     const salt = await bcrypt.genSalt(10);
+//     user.password = await bcrypt.hash(user.password, salt);
+//     user.passConfirmation = user.password;}
+
+const getproducts = async (req, res) => {
     try {
         const products = await Product.findAll({
-            include:{
+            include: {
                 model: Review
             }
         });
         res.json(products);
-        
     } catch (error) {
         res.status(500).json(error);
     }
+    }
+
+const getproduct = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const product = await Product.findByPk(id);
+        if (!id || !product) {
+            return res.status(400).json({ msg: 'No se ha especificado el id o Producto no econtrado' });
+        }
+        res.status(200).json(product);
+    } catch (error) {
+        ;
+    }
 }
 
-const getProduct = async (req, res, next) => {
+const deleteproduct =  async (req, res,  next) => {
     try {
-        const {id} = req.params;
+        const { id } = req.params;
         const product = await Product.findByPk(id);
-        if(!id || !product) {
-            return res.status(400).json({msg: 'No se ha especificado el id o producto no encontrado'});
+        if (!id || !product) {
+            return res.status(400).json({ msg: 'No se ha especificado el id o Producto no econtrado' });
         }
-       res.status(200).json(product);
+        await product.destroy();
+        res.status(200).json({ msg: 'Producto eliminado' });
     } catch (error) {
         next(error);
     }
-}
+};
 
-const deleteProduct = async(req, res, next) => {
-    try {
-        const {id} = req.params.id
-        const product = await Product.findById(id);
-        if(!id || !products){
-            return res.status(400).json({message:'No se ha especificado el id o Producto no encontrado'})
-        }
-        await product.destroy()
-        res.status(200).json({msg: 'Producto eliminado'})
-    } catch (error) {
-        next(error)
-        
-    }
-}
-
-const postProduct = async(req, res, next) => {
+const postproduct = async (req, res) => {
     try {
         const {id, title, image, description, price, discount, status, stock} = req.body
-        const product = await Product.create({id, title, image, description, price, discount, status});
-        res.status(201).json(Product)
+        const product = await Product.create({id, title, image, description, price, discount, status, stock});
+        res.status(201).json(product);
     } catch (error) {
-        res.status(500).json(error);        
+        res.status(500).json(error);
     }
+       
 }
 
-
-const putProduct = async (req, res, next) => {
+const putproduct = async (req, res) => {
     try {
         const {id} = req.params;
         const {title, image, description, price, discount, status, stock} = req.body;
         const product = await Product.findByPk(id);
-        if (!id || !product){
-            return res.status(404).json({message:'No se ha especificado id o producto no encontrado'});
+        if (!id || !product) {
+            return res.status(400).json({ msg: 'No se ha especificado el id o Producto no econtrado' });
         }
-        await Product.update({
+        await product.update({
             title, 
             image,
             description,
             price, 
             discount, 
             status,
-             stock
-            }, {where: {id} });
+             stock,},{ where: { id } });
 
-            res.status(200).json(product);
+
+           
         
+        res.status(200).json(product);
     } catch (error) {
-     res.status(500).json(error);   
+        res.status(500).json(error);
     }
 }
 
-const productName = async (req, res, next) => {
+const productname = async (req, res) => {
+   
+        const title = req.query.title;
+        const totalProducts = await Product.findAll();
+    
+        if (title) {
+          const productTiitle = await totalProducts.filter(e => e.title.toLowerCase().includes(title.toLowerCase()));
+          productTiitle.length ?
+            res.status(200).send(productTiitle) :
+            res.status(404).send('No encontramos tu producto.');
+        } else {
+          res.status(200).send(totalProducts);
+        };
+      };
+//     const title = req.query.title;
+//     const product = await Product.findOne();
+//     if (!title || !product) {
+//         return res.status(400).json({ msg: 'No se ha especificado el id o Producto no econtrado' });
+//     }
+//     res.status(200).json(product);
+// }
+   
 
-    const title = req.query.title;
-    const totalProducts = await Product.findAll();
-
-    if(title){
-        const prodcutTitle = await totalProducts.filter(e => e.title.toLowerCase().includes(title.toLowerCase()));
-        prodcutTitle.length ?
-        res.status(200).send(prodcutTitle) :
-        res.status(404).send('No encontramos el producto solicitado');
-    } else {
-        res.status(200).send(totalProducts)
-    }
-}
-
-
-module.exports = {
-    getProduct,
-    getProducts,
-    deleteProduct,
-    postProduct,
-    putProduct,
-    productName
-};
+    
+    
+module.exports={
+    getproducts,
+    getproduct,
+    deleteproduct,
+    postproduct,
+    putproduct,
+    productname
+    };
